@@ -12,7 +12,6 @@ function Matrix(rows, columns)
 {
     var i, j;
 	
-	console.log(rows, columns)
     
     if (Array.isArray(rows))
     {
