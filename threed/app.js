@@ -279,12 +279,14 @@
 		return [p2Dx, p2Dy];
 	}
 	
+	//
+	
 	function paint()
 	{
 		////////
 		
-		camera3D.rot.xy = 0.0;
-		camera3D.rot.yz = 0.0;
+		camera3D.rot.xy = 0.04;
+		camera3D.rot.yz = 0.01;
 		camera3D.rot.zx = 0.0;
 		camera3D.computeRotationMatrix();
 		
