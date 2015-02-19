@@ -23,29 +23,32 @@
 			temp;
 		}
 		
-		var iter = 0;
-		var upperLimit = 1000; // FIX: remove this
-		
-		while (iter < upperLimit) 
+		while (true) 
 		{
 			a %= b;
 			
-			if (a == 0) 
+			if (a <= 0) 
 			{
 				return b;
 			}
 			
 			b %= a;
 			
-			if (b == 0) 
+			if (b <= 0) 
 			{
 				return a;
 			}
-			
-			iter++;
 		}
 	}
 	utils.gcd = gcd;
+	
+	function triangulation(angle1, angle2, length)
+	{
+		var distance = length * Math.sin(angle1) * Math.sin(angle2) / Math.sin(angle1 + angle2);
+		
+		return distance;
+	}
+	utils.triangulation = triangulation;
 	
 
 	this.utils = utils;

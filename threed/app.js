@@ -289,8 +289,8 @@
     {
         ////////
         
-        camera3D.rot.xy += 0.04;
-        camera3D.rot.yz += 0.01;
+        camera3D.rot.xy = 0.04;
+        camera3D.rot.yz = 0.01;
         camera3D.rot.zx = 0.0;
         camera3D.computeRotationMatrix();
         
@@ -408,7 +408,7 @@
         dh.imageData = dh.ctx.createImageData(dh.width, dh.height)
         
         animate();
-        anim_id = setInterval(animate, dh.latency)
+        //anim_id = setInterval(animate, dh.latency)
     }
     main();
     

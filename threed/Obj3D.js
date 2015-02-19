@@ -4,8 +4,12 @@
 
 var Obj3D = (function() 
 {
-    var utils = {};
-    
+	function Obj3D() {}
+
+	// Private
+	
+    var _utils = {};
+  
     
     var _matrix = {
     
@@ -15,10 +19,8 @@ var Obj3D = (function()
             [0, 0, 0]
         ]
     };
-
-    function Obj3D() {}
     
-    utils.matrixMultiplication = function(matrix_left, matrix_right, 
+    _utils.matrixMultiplication = function(matrix_left, matrix_right, 
         matrix_result)
     {
         var i, j, k, sum;
@@ -39,7 +41,7 @@ var Obj3D = (function()
         }
     };
     
-    utils.createRotationMatrix = function(mxy, myz, mzx, xy, yz, zx, fxy, fyz, 
+    _utils.createRotationMatrix = function(mxy, myz, mzx, xy, yz, zx, fxy, fyz, 
         fzx)
     {
         fxy = (typeof fxy === "undefined") ? true : fxy;
@@ -79,7 +81,7 @@ var Obj3D = (function()
 
     // Expose interface ////////////////////////////////////////////////////////
     
-    Obj3D.utils = utils;
+    Obj3D.utils = _utils;
     
     return Obj3D;
 
@@ -104,18 +106,92 @@ Obj3D.Camera3D = (function()
 Obj3D.Cube3D = (function() 
 {
     ///////////////////////////////////////////////////////////////////////////
+    // CLASS CONSTRUCTOR //////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    
+    function Cube3D(radius, position, orientation)
+    {
+        _self = this;
+        
+        _o.rad = radius;
+        _o.pos = position;
+        _o.rot = orientation;
+        
+		// Initialization
+		
+        _c.rad = _o.rad;
+        _c.pos = _o.pos;
+        _c.rot = _o.rot;
+		
+		_self.rotate();
+		
+        _create3D();
+        _incrementInstances();
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     // PRIVATE PROPERTIES /////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     
-    var instances = 0;
-    
-    var original = {};
-    
-    var current = {};
+    var _instances = 0;
     
     var _self;
-    
+	
     var _isRotated = false;
+	
+	// vertices and edges
+	var item3D = {
+
+	};
+	
+	var item2D = {
+	};
+	
+	/**
+	 * Original configuration
+	 */
+	var _o = {
+		rad: 1, // radius
+		pos: [0, 0, 0], // position
+		rot: [0, 0, 0], // Tait–Bryan angles
+		item3D: {
+			v: [
+				[ 1,  1,  1], [-1,  1,  1], [-1, -1,  1], [ 1, -1,  1],
+				[ 1,  1, -1], [-1,  1, -1], [-1, -1, -1], [ 1, -1, -1],
+			],
+			e: [
+				[0, 1], [1, 2], [2, 3], [3, 0],
+				[0, 4], [1, 5], [2, 6], [3, 7],
+				[4, 5], [5, 6], [6, 7], [7, 4],
+			]
+		}
+	};
+	
+	/**
+	 * Current configuration
+	 */
+	var _c = {
+		rad: 1, // radius
+		pos: [0, 0, 0], // position
+		rot: [0, 0, 0], // Tait–Bryan angles
+		item3D: {
+			v: [
+				[ 1,  1,  1], [-1,  1,  1], [-1, -1,  1], [ 1, -1,  1],
+				[ 1,  1, -1], [-1,  1, -1], [-1, -1, -1], [ 1, -1, -1],
+			],
+			e: [
+				[0, 1], [1, 2], [2, 3], [3, 0],
+				[0, 4], [1, 5], [2, 6], [3, 7],
+				[4, 5], [5, 6], [6, 7], [7, 4],
+			]
+		},
+		item2D: {
+			v: [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
+			e: [[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]]
+		}
+	};
+	
     
     var m = {
         xy: [
@@ -150,52 +226,13 @@ Obj3D.Cube3D = (function()
         ]
     };
     
-
-    
     ///////////////////////////////////////////////////////////////////////////
     // PRIVATE METHODS ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     
-    function _init()
-    {
-        _reset();
-        _create3D();
-        _incrementInstances();
-        _self.rotate();
-        
-        console.log(current);
-    }
-    
     function _incrementInstances()
     {
-        instances++;
-    }
-    
-    function _reset()
-    {
-        current.radius = original.radius;
-        current.position = original.position;
-        current.orientation = original.orientation;
-
-    }
-    
-    function _create3D()
-    {
-    }
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // CLASS CONSTRUCTOR //////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-    
-    function Cube3D(radius, position, orientation)
-    {
-        _self = this;
-        
-        original.radius = radius;
-        original.position = position;
-        original.orientation = orientation;
-        
-        _init();
+        _instances++;
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -219,29 +256,31 @@ Obj3D.Cube3D = (function()
     
     Cube3D.prototype.getRadius = function()
     {
-        return current.radius;
+        return _c.rad;
     };
     
     Cube3D.prototype.setRadius = function(radius)
     {
         // TODO update rest
-        current.radius = radius;
+        _c.rad = radius;
     };
 
     Cube3D.prototype.getPosition = function()
     {
-        return current.position;
+        return _c.pos;
     };
     
     Cube3D.prototype.setPosition = function(position)
     {
         // TODO update rest
-        current.position = position;
+        _c.pos = position;
     };    
     
     Cube3D.prototype.rotate = function(rotation)
     {
-        if (typeof rotation === "undefined")
+		var rot = rotation;
+	
+        if (typeof rot === "undefined")
         {
             console.log("No new rotation input");
             
@@ -251,7 +290,7 @@ Obj3D.Cube3D = (function()
             
                 Obj3D.utils.createRotationMatrix(
                     m.xy, m.yz, m.zx,
-                    current.orientation[0], current.orientation[1], current.orientation[2]
+                    _c.rot[0], _c.rot[1], _c.rot[2]
                 );
                 
                 Obj3D.utils.matrixMultiplication(m.xy, m.yz, m.xy_yz);
@@ -263,22 +302,22 @@ Obj3D.Cube3D = (function()
         else
         {
             console.log("New rotation.");
-            var xy_changed = (current.orientation[0] === rotation[0]) ? false : true;
-            var yz_changed = (current.orientation[1] === rotation[1]) ? false : true;
-            var zx_changed = (current.orientation[2] === rotation[2]) ? false : true;
+            var xy_changed = (_c.rot[0] === rot[0]) ? false : true;
+            var yz_changed = (_c.rot[1] === rot[1]) ? false : true;
+            var zx_changed = (_c.rot[2] === rot[2]) ? false : true;
             
             console.log("Stats: " + [xy_changed, yz_changed, zx_changed]);
             
             if (xy_changed || yz_changed || zx_changed)
             {
                 console.log("Rotation differs from previous");
-                current.orientation[0] = (xy_changed ? rotation[0] : current.orientation[0]);
-                current.orientation[1] = (yz_changed ? rotation[1] : current.orientation[1]);
-                current.orientation[2] = (zx_changed ? rotation[2] : current.orientation[2]);
+                _c.rot[0] = (xy_changed ? rot[0] : _c.rot[0]);
+                _c.rot[1] = (yz_changed ? rot[1] : _c.rot[1]);
+                _c.rot[2] = (zx_changed ? rot[2] : _c.rot[2]);
                 
                 Obj3D.utils.createRotationMatrix(
                     m.xy, m.yz, m.zx,
-                    current.orientation[0], current.orientation[1], current.orientation[2],
+                    _c.rot[0], _c.rot[1], _c.rot[2],
                     xy_changed, yz_changed, zx_changed
                 );
                 
@@ -298,7 +337,7 @@ Obj3D.Cube3D = (function()
     
     Cube3D.getNumberOfInstances = function()
     {
-        return instances;
+        return _instances;
     };
     
     ///////////////////////////////////////////////////////////////////////////
