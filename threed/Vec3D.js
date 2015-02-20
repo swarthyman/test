@@ -30,6 +30,8 @@ var Vec3D = (function()
 		);
 	};
 	
+	// http://www.cs.princeton.edu/courses/archive/fall00/cs426/lectures/raycast/sld008.htm
+	
 	Vec3D.scalarDivision = function(vector, scala)
 	{
 		return new Vec3D(

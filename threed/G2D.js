@@ -17,15 +17,3 @@ RCS2D.prototype.rotate = function(point, angle)
     
     console.log(result);
 };
-
-(function(context) {
-    
-    
-    
-    var attach = {};
-    
-    
-    this.RCS2D = attach;
-    
-    console.log(this)
-})();
