@@ -99,6 +99,8 @@ function Scene3D(label) {
 		// START RENDERING ... /////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////
 		
+		
+		
 		for (var i = 0; i < img.length; i += 4)
 		{
 			img[i + 0] = Math.floor(Math.random() * 256);
@@ -106,6 +108,10 @@ function Scene3D(label) {
 			img[i + 2] = Math.floor(Math.random() * 256);
 			img[i + 3] = 255;
 		}
+		
+		
+		// Start by rotating every individual object according to its natural
+		// rotation
 		
 		// Move every object in the scene so the camera is at the center of the 
 		// coordinate system.

@@ -97,27 +97,103 @@ var Obj3D = (function()
 
 Obj3D.Camera3D = (function() 
 {
-	var pos = [0, 0, 0];
-	var rot = [0, 0, 0];
-
     function Camera3D() {
 		// This public instance method should be immutable, so don't change it
 		var type = "Obj3D.Camera3D";
 		this.getType = function() { return type; };
+		console.log(this);
 	
 	}
 	
-	Camera3D.prototype.pos = function(x, y, z) {
-		pos[0] = x;
-		pos[1] = y;
-		pos[2] = z;
+	// abstract reference
+	var _constructor_ = Camera3D;
+	console.log(_constructor_);
+	
+	// x, y, z
+	var position = [];
+	
+	// xy, yz, zx
+	var rotation = [];
+	
+	////////////////////////////////////////////////////////////////////////////
+	
+	_constructor_.prototype.getPos = function() {
+		return [
+			position[0], 
+			position[1], 
+			position[2]
+		];
     };
 	
-	Camera3D.prototype.rot = function(x, y, z) {
-		rot[0] = x;
-		rot[1] = y;
-		rot[2] = z;
+	_constructor_.prototype.setPos = function(x, y, z) {
+		position[0] = x;
+		position[1] = y;
+		position[2] = z;
     };
+	
+	_constructor_.prototype.getPosX = function() {
+        return position[0];
+    };
+	
+	_constructor_.prototype.setPosX = function(x) {
+		position[0] = x;
+	};
+	
+	_constructor_.prototype.getPosY = function() {
+		return position[1];
+	};
+	
+	_constructor_.prototype.setPosY = function(y) {
+		position[1] = y;
+	};
+	
+	_constructor_.prototype.getPosZ = function() {
+		return position[2];
+	};
+	
+	_constructor_.prototype.setPosZ = function(z) {
+		position[2] = z;
+	};
+	
+	_constructor_.prototype.getRot = function() {
+		return [
+			rotation[0], 
+			rotation[1], 
+			rotation[2]
+		];
+    };
+	
+	_constructor_.prototype.setRot = function(xy, yz, zx) {
+		rotation[0] = xy;
+		rotation[1] = yz;
+		rotation[2] = zx;
+    };
+	
+	_constructor_.prototype.getRotXY = function() {
+		return rotation[0];
+	};
+	
+	_constructor_.prototype.setRotXY = function(xy) {
+		rotation[0] = xy;
+	};
+	
+	_constructor_.prototype.getRotYZ = function() {
+		return rotation[1];
+	};
+	
+	_constructor_.prototype.setRotYZ = function(yz) {
+		rotation[1] = yz;
+	};
+	
+	_constructor_.prototype.getRotZX = function() {
+		return rotation;
+	};
+	
+	_constructor_.prototype.setRotZX = function(zx) {
+		rotation[2] = zx;
+	};
+	
+	////////////////////////////////////////////////////////////////////////////
     
     return Camera3D;
 
@@ -133,38 +209,28 @@ Obj3D.Cube3D = (function()
     // CLASS CONSTRUCTOR //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     
-    function Cube3D(radius, position, orientation)
+    function Cube3D()
     {
+		////////////////////////////////////////////////////////////////////////
 		// This public instance method should be immutable, so don't change it
 		var type = "Obj3D.Cube3D";
 		this.getType = function() { return type; };
+		////////////////////////////////////////////////////////////////////////
 		
-        _self = this;
-        
-        _o.rad = radius || _o.rad;
-        _o.pos = position || _o.pos;
-        _o.rot = orientation || _o.rot;
-        
-		// Initialization
+        self = this;
 		
-        _c.rad = _o.rad;
-        _c.pos = _o.pos;
-        _c.rot = _o.rot;
-		
-		_self.rotate();
-		
-        //_create3D();
-        _incrementInstances();
-
+		self.rotate();
     }
+	
+	// abstract reference
+	var _constructor_ = Cube3D;
+	console.log(_constructor_);
 
-    ///////////////////////////////////////////////////////////////////////////
-    // PRIVATE PROPERTIES /////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    // PRIVATE PROPERTIES //////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
     
-    var _instances = 0;
-    
-    var _self;
+    var self;
 	
     var _isRotated = false;
 	
@@ -176,11 +242,24 @@ Obj3D.Cube3D = (function()
 	// x, y, z
 	var position = [];
 	
-	// yaw, pitch, roll
+	// xy, yz, zx
 	var rotation = [];
 	
 	// vertices and edges
 	var item3D = {
+		v: [
+			[ 1,  1,  1], [-1,  1,  1], [-1, -1,  1], [ 1, -1,  1],
+			[ 1,  1, -1], [-1,  1, -1], [-1, -1, -1], [ 1, -1, -1],
+		],
+		e: [
+			[0, 1], [1, 2], [2, 3], [3, 0],
+			[0, 4], [1, 5], [2, 6], [3, 7],
+			[4, 5], [5, 6], [6, 7], [7, 4],
+		]
+	};
+	
+	// projected and warped
+	var itemProj3D = {
 		v: [
 			[ 1,  1,  1], [-1,  1,  1], [-1, -1,  1], [ 1, -1,  1],
 			[ 1,  1, -1], [-1,  1, -1], [-1, -1, -1], [ 1, -1, -1],
@@ -205,52 +284,7 @@ Obj3D.Cube3D = (function()
 		]
 	};
 	
-	
-	/**
-	 * Original configuration
-	 */
-	var _o = {
-		rad: 1, // radius
-		pos: [0, 0, 0], // position
-		rot: [0, 0, 0], // Tait–Bryan angles
-		item3D: {
-			v: [
-				[ 1,  1,  1], [-1,  1,  1], [-1, -1,  1], [ 1, -1,  1],
-				[ 1,  1, -1], [-1,  1, -1], [-1, -1, -1], [ 1, -1, -1],
-			],
-			e: [
-				[0, 1], [1, 2], [2, 3], [3, 0],
-				[0, 4], [1, 5], [2, 6], [3, 7],
-				[4, 5], [5, 6], [6, 7], [7, 4],
-			]
-		}
-	};
-	
-	/**
-	 * Current configuration
-	 */
-	var _c = {
-		rad: 1, // radius
-		pos: [0, 0, 0], // position
-		rot: [0, 0, 0], // Tait–Bryan angles
-		item3D: {
-			v: [
-				[ 1,  1,  1], [-1,  1,  1], [-1, -1,  1], [ 1, -1,  1],
-				[ 1,  1, -1], [-1,  1, -1], [-1, -1, -1], [ 1, -1, -1],
-			],
-			e: [
-				[0, 1], [1, 2], [2, 3], [3, 0],
-				[0, 4], [1, 5], [2, 6], [3, 7],
-				[4, 5], [5, 6], [6, 7], [7, 4],
-			]
-		},
-		item2D: {
-			v: [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
-			e: [[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]]
-		}
-	};
-	
-    
+    // rotation matrices
     var m = {
         xy: [
             [0, 0, 0],
@@ -283,114 +317,101 @@ Obj3D.Cube3D = (function()
             [0, 0, 1]
         ]
     };
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // PRIVATE METHODS ////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-    
-    function _incrementInstances()
-    {
-        _instances++;
-    }
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // PUBLIC INSTANCE METHODS ////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
 	
 	////////////////////////////////////////////////////////////////////////////
 	
-	Cube3D.prototype.getPosition = function() {
-		return [_c.pos[0], _c.pos[1], _c.pos[2]];
+	_constructor_.prototype.getPos = function() {
+		return [
+			position[0], 
+			position[1], 
+			position[2]
+		];
     };
 	
-	Cube3D.prototype.setPosition = function(x, y, z) {
-		_c.pos[0] = x;
-		_c.pos[1] = y;
-		_c.pos[2] = z;
+	_constructor_.prototype.setPos = function(x, y, z) {
+		position[0] = x;
+		position[1] = y;
+		position[2] = z;
     };
 	
-	Cube3D.prototype.getX = function() {
-        return _c.pos[0];
+	_constructor_.prototype.getPosX = function() {
+        return position[0];
     };
 	
-	Cube3D.prototype.setX = function(x) {
-		_c.pos[0] = x;
+	_constructor_.prototype.setPosX = function(x) {
+		position[0] = x;
 	};
 	
-	Cube3D.prototype.getY = function() {
-		return _c.pos[1];
+	_constructor_.prototype.getPosY = function() {
+		return position[1];
 	};
 	
-	Cube3D.prototype.setY = function(y) {
-		_c.pos[1] = y;
+	_constructor_.prototype.setPosY = function(y) {
+		position[1] = y;
 	};
 	
-	Cube3D.prototype.getZ = function() {
-		return _c.pos[2];
+	_constructor_.prototype.getPosZ = function() {
+		return position[2];
 	};
 	
-	Cube3D.prototype.setZ = function(z) {
-		_c.pos[2] = z;
+	_constructor_.prototype.setPosZ = function(z) {
+		position[2] = z;
 	};
 	
-	Cube3D.prototype.getYaw = function() {
-		return _c.rot[0];
-	};
-	
-	Cube3D.prototype.getRotation = function() {
-		return [_c.rot[0], _c.rot[1], _c.rot[2]];
+	_constructor_.prototype.getRot = function() {
+		return [
+			rotation[0], 
+			rotation[1], 
+			rotation[2]
+		];
     };
 	
-	Cube3D.prototype.setRotation = function(yaw, pitch, roll) {
-		_c.rot[0] = yaw;
-		_c.rot[1] = pitch;
-		_c.rot[2] = roll;
+	_constructor_.prototype.setRot = function(xy, yz, zx) {
+		rotation[0] = xy;
+		rotation[1] = yz;
+		rotation[2] = zx;
     };
 	
-	Cube3D.prototype.setYaw = function(yaw) {
-		_c.rot[0] = yaw;
+	_constructor_.prototype.getRotXY = function() {
+		return rotation[0];
 	};
 	
-	Cube3D.prototype.getPitch = function() {
-		return _c.rot[1];
+	_constructor_.prototype.setRotXY = function(xy) {
+		rotation[0] = xy;
 	};
 	
-	Cube3D.prototype.setPitch = function(pitch) {
-		_c.rot[1] = pitch;
+	_constructor_.prototype.getRotYZ = function() {
+		return rotation[1];
 	};
 	
-	Cube3D.prototype.getRoll = function() {
-		return _c.rot[2];
+	_constructor_.prototype.setRotYZ = function(yz) {
+		rotation[1] = yz;
 	};
 	
-	Cube3D.prototype.setRoll = function(roll) {
-		_c.rot[2] = roll;
+	_constructor_.prototype.getRotZX = function() {
+		return rotation;
+	};
+	
+	_constructor_.prototype.setRotZX = function(zx) {
+		rotation[2] = zx;
 	};
 	
 	////////////////////////////////////////////////////////////////////////////
 	
-	
-    Cube3D.prototype.rad = function(radius)
+    _constructor_.prototype.getRadius = function()
     {
-        _c.rad = radius;
+        return radius;
+    };
+    
+    _constructor_.prototype.setRadius = function(value)
+    {
+       radius = value;
     };
 	
-    Cube3D.prototype.pos = function(x, y, z)
-    {
-        _c.pos[0] = x;
-		_c.pos[1] = y;
-		_c.pos[2] = z;
-    };
-	
-    Cube3D.prototype.rot = function(x, y, z)
-    {
-        _c.rot[0] = x;
-		_c.rot[1] = y;
-		_c.rot[2] = z;
-    };
+	////////////////////////////////////////////////////////////////////////////
 	
     
-    Cube3D.prototype.getCopyOfRotationMatrix = function()
+    _constructor_.prototype.getCopyOfRotationMatrix = function()
     {
         var matrix = [[0,0,0],[0,0,0],[0,0,0]];
         
@@ -403,33 +424,12 @@ Obj3D.Cube3D = (function()
         }
         
         return matrix;
-    };
+    };  
     
-    Cube3D.prototype.getRadius = function()
+    _constructor_.prototype.rotate = function(rotationArray)
     {
-        return _c.rad;
-    };
-    
-    Cube3D.prototype.setRadius = function(radius)
-    {
-        // TODO update rest
-        _c.rad = radius;
-    };
-
-    Cube3D.prototype.getPosition = function()
-    {
-        return _c.pos;
-    };
-    
-    Cube3D.prototype.setPosition = function(position)
-    {
-        // TODO update rest
-        _c.pos = position;
-    };    
-    
-    Cube3D.prototype.rotate = function(rotation)
-    {
-		var rot = rotation;
+		// if no argument rotate around self
+		var rot = rotationArray || rotation;
 	
         if (typeof rot === "undefined")
         {
@@ -453,18 +453,18 @@ Obj3D.Cube3D = (function()
         else
         {
             console.log("New rotation.");
-            var xy_changed = (_c.rot[0] === rot[0]) ? false : true;
-            var yz_changed = (_c.rot[1] === rot[1]) ? false : true;
-            var zx_changed = (_c.rot[2] === rot[2]) ? false : true;
+            var xy_changed = (rotation[0] === rot[0]) ? false : true;
+            var yz_changed = (rotation[1] === rot[1]) ? false : true;
+            var zx_changed = (rotation[2] === rot[2]) ? false : true;
             
             console.log("Stats: " + [xy_changed, yz_changed, zx_changed]);
             
             if (xy_changed || yz_changed || zx_changed)
             {
                 console.log("Rotation differs from previous");
-                _c.rot[0] = (xy_changed ? rot[0] : _c.rot[0]);
-                _c.rot[1] = (yz_changed ? rot[1] : _c.rot[1]);
-                _c.rot[2] = (zx_changed ? rot[2] : _c.rot[2]);
+                rotation[0] = (xy_changed ? rot[0] : _c.rot[0]);
+                rotation[1] = (yz_changed ? rot[1] : _c.rot[1]);
+                rotation[2] = (zx_changed ? rot[2] : _c.rot[2]);
                 
                 Obj3D.utils.createRotationMatrix(
                     m.xy, m.yz, m.zx,
@@ -480,15 +480,6 @@ Obj3D.Cube3D = (function()
                 Obj3D.utils.matrixMultiplication(m.xy_yz, m.zx, m.xyz);
             }
         }
-    };
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // PUBLIC STATIC METHODS //////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-    
-    Cube3D.getNumberOfInstances = function()
-    {
-        return _instances;
     };
     
     ///////////////////////////////////////////////////////////////////////////
